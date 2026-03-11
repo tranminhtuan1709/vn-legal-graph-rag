@@ -1,0 +1,54 @@
+import logging
+import logging.handlers
+import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from logging import LogRecord, Formatter
+from dotenv import load_dotenv
+
+VN_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+
+
+class CustomFormatter(Formatter):
+    def formatTime(self, record: LogRecord, datefmt: str = "%Y-%m-%d %H:%M:%S"):
+        dt = datetime.fromtimestamp(record.created, VN_TZ)
+        return dt.strftime(datefmt)
+
+    def format(self, record: LogRecord):
+        timestamp = self.formatTime(record)
+        file_info = f"{record.filename}:{record.funcName}:{record.lineno}"
+
+        message = record.getMessage()
+
+        log = f"[{timestamp}] [{record.levelname}] [{file_info}] {message}"
+
+        if record.exc_info:
+            exc_text = self.formatException(record.exc_info)
+            log = f"{log}\n{exc_text}"
+
+        return log
+
+
+log_level_mapping = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warn": logging.WARN,
+    "error": logging.ERROR
+}
+
+load_dotenv(dotenv_path="../.env")
+logger = logging.getLogger(os.getenv("LOG_NAME"))
+logger.setLevel(log_level_mapping.get(os.getenv("LOG_LEVEL")))
+
+handler = logging.handlers.RotatingFileHandler(
+    filename=f"../logs/{os.getenv("LOG_FILE")}",
+    maxBytes=int(os.getenv("LOG_MAX_BYTES")),
+    backupCount=int(os.getenv("LOG_BACKUP_COUNT")),
+    encoding="utf-8",
+)
+
+formatter = CustomFormatter()
+handler.setFormatter(formatter)
+
+if not logger.handlers:
+    logger.addHandler(handler)
