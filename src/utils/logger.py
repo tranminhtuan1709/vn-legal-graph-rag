@@ -4,9 +4,11 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from logging import LogRecord, Formatter
+from contextvars import ContextVar
 from dotenv import load_dotenv
 
 VN_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+log_context: ContextVar[str] = ContextVar(name="request_id", default='-')
 
 
 class CustomFormatter(Formatter):
@@ -19,8 +21,9 @@ class CustomFormatter(Formatter):
         file_info = f"{record.filename}:{record.funcName}:{record.lineno}"
 
         message = record.getMessage()
+        request_id = log_context.get()
 
-        log = f"[{timestamp}] [{record.levelname}] [{file_info}] {message}"
+        log = f"[{timestamp}] [{request_id}] [{record.levelname}] [{file_info}] {message}"
 
         if record.exc_info:
             exc_text = self.formatException(record.exc_info)
