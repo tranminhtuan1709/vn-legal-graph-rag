@@ -1,5 +1,4 @@
 from fastapi import Depends
-from typing import Any
 from infrastructure.neo4j_client import Neo4jClient
 from dependencies import get_neo4j_client
 from interface.dtos.internal.traversal_policy import TraversalPolicy

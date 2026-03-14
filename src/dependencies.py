@@ -3,11 +3,9 @@ from fastapi import Depends
 
 from infrastructure.neo4j_client import Neo4jClient
 from infrastructure.elasticsearch_client import ElasticsearchClient
-from infrastructure.llm_client import LLMClient
 
 from repositories.graph_repository import GraphRepository
 from repositories.vector_repository import VectorRepository
-from repositories.llm_repository import LLMRepository
 
 from services.retrieval_service import RetrievalService
 
@@ -34,10 +32,6 @@ def get_elasticsearch_client() -> ElasticsearchClient:
     )
 
 
-def get_llm_client() -> LLMClient:
-    return LLMClient()
-
-
 def get_graph_repository(neo4j_client: Neo4jClient = Depends(get_neo4j_client)):
     return GraphRepository(neo4j_client)
 
@@ -46,13 +40,8 @@ def get_vector_repository(elasticsearch_client: ElasticsearchClient = Depends(ge
     return VectorRepository(elasticsearch_client)
 
 
-def get_llm_repository(llm_client: LLMClient = Depends(get_llm_client)):
-    return LLMRepository(llm_client)
-
-
 def get_retrieval_service(
     graph_repository: GraphRepository = Depends(get_graph_repository),
-    vector_repository: VectorRepository = Depends(get_vector_repository),
-    llm_repository: LLMRepository = Depends(get_llm_repository)
+    vector_repository: VectorRepository = Depends(get_vector_repository)
 ):
-    return RetrievalService(graph_repository, vector_repository, llm_repository)
+    return RetrievalService(graph_repository, vector_repository)

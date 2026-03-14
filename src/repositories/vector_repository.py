@@ -1,14 +1,21 @@
-from fastapi import Depends
-from infrastructure.elasticsearch_client import ElasticsearchClient
-from dependencies import get_elasticsearch_client
+import requests
+import os
 
 
 class VectorRepository:
-    def __init__(self, elasticsearch_client: ElasticsearchClient = Depends(get_elasticsearch_client)) -> None:
-        self.elasticsearch_client = elasticsearch_client
-    
-    def search_documents(self):
+    def __init__(self) -> None:
         pass
+    
+    def search_documents(self, text: str) -> list[int]:
+        try:
+            query = {
+                "knn": {
+                    "field": os.getenv("ELASTIC_DOCUMENT_EMBEDDING_FIELD"),
+                    "query": ""
+                }
+            }
+        except Exception:
+            raise
 
     def search_articles(self):
         pass
