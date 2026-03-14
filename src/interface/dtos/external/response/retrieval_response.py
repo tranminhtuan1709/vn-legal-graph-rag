@@ -4,6 +4,5 @@ from typing import Any
 
 class RetrievalResponse(BaseModel):
     execution_time: int
-    total_result: int
-    total_token: int
-    results: list[dict[str, Any]]
+    nodes: list[dict[str, Any]]
+    edges: list[dict[str, Any]]

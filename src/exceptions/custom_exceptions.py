@@ -1,2 +1,0 @@
-class GeminiRateLimitError(Exception):
-    pass
