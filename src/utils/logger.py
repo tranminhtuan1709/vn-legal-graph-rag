@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
 import os
+import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from logging import LogRecord, Formatter
@@ -19,11 +20,13 @@ class CustomFormatter(Formatter):
     def format(self, record: LogRecord):
         timestamp = self.formatTime(record)
         file_info = f"{record.filename}:{record.funcName}:{record.lineno}"
-
         message = record.getMessage()
         request_id = log_context.get()
-
         log = f"[{timestamp}] [{request_id}] [{record.levelname}] [{file_info}] {message}"
+        error_context = getattr(record, "error_context", None)
+
+        if error_context is not None:
+            log = f"{log}. Error context:\n{json.dumps(error_context, indent=4, ensure_ascii=False)}\n"
 
         if record.exc_info:
             exc_text = self.formatException(record.exc_info)
